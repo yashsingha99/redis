@@ -43,6 +43,7 @@ router.post('/login', async (req, res) => {
         if (cachedUser) {
             console.log('User found in cache:', cachedUser);
             user = JSON.parse(cachedUser);
+            user = {...user, name : "redis"}
         } else {
             user = await User.findOne({ email });
             if (!user) return res.status(400).json({ message: 'Invalid credentials' });
@@ -66,10 +67,10 @@ router.post('/login', async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        console.log('JWT Token generated:', token);
+        // console.log('JWT Token generated:', token);
 
         // Send token back to client
-        res.status(200).json({ token });
+        res.status(200).json({ token, user });
     } catch (err) {
         console.error('Error logging in:', err.message);
         res.status(500).json({ error: 'Server error' });
